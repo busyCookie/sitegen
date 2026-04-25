@@ -27,6 +27,7 @@ class HTMLNode:
 
         return html_props
 
+
 class LeafNode(HTMLNode):
 
     def __init__(self, tag, value, props = None):
