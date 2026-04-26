@@ -9,38 +9,6 @@ class TextType(Enum):
     LINK = "link"
     IMG = "image"
 
-def text_node_to_html_node(text_node):
-    match text_node.text_type:
-        case TextType.TEXT:
-            new_node = LeafNode(None, text_node.text)
-
-        case TextType.BOLD:
-            new_node = LeafNode("b", text_node.text)
-
-        case TextType.ITALIC:
-            new_node = LeafNode("i", text_node.text)
-
-        case TextType.CODE:
-            new_node = LeafNode("code", text_node.text)
-
-        case TextType.LINK:
-            props = {}
-            props["href"] = text_node.url
-
-            new_node = LeafNode("a", text_node.text, props)
-
-        case TextType.IMG:
-            props = {}
-            props["src"] = text_node.url
-            props["alt"] = text_node.text
-
-            new_node = LeafNode("img", None, props)
-
-        case _:
-            raise Exception("Invalid TextNode type")
-
-    return new_node
-
 
 class TextNode:
     def __init__(self, text, text_type, url = None):
