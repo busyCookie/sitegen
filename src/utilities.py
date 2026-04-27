@@ -48,12 +48,14 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         else:
             parts = node.text.split(delimiter)
 
-            for i in range(0, len(parts), 2):
+            for i in range(0, len(parts)-1, 2):
                 new_text_node = TextNode(parts[i], TextType.TEXT)
-                new_typed_node = TextNode(parts[i + 1, ], text_type)
+                new_typed_node = TextNode(parts[i + 1], text_type)
 
                 new_nodes.append(new_text_node)
                 new_nodes.append(new_typed_node)
 
             if parts[-1] != "":
                 new_nodes.append(TextNode(parts[-1], TextType.TEXT))
+
+    return new_nodes

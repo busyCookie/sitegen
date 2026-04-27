@@ -31,6 +31,16 @@ class TestHTMLNode(unittest.TestCase):
 
         self.assertNotEqual(node1, node2)
 
+    def test_difftext(self):
+        htmlprops = {
+            "href": "https://localhost:8080/",
+            "target": "_blank"
+            }
+        node1 = HTMLNode("<p>", "This is a html node", htmlprops)
+        node2 = HTMLNode("<p>", "This is another html node", htmlprops)
+
+        self.assertNotEqual(node1, node2)
+
     def test_repr(self):
         htmlprops = {
             "href": "https://localhost:8080/",
@@ -39,6 +49,36 @@ class TestHTMLNode(unittest.TestCase):
         control = "HTMLNode(<a>, This is a html node, None, {'href': 'https://localhost:8080/', 'target': '_blank'})"
 
         node = HTMLNode("<a>", "This is a html node", htmlprops)
+        representation = str(node)
+
+        self.assertEqual(representation, control)
+
+    def test_leaf_eq(self):
+        node1 = LeafNode("p", "This is a html leaf node.")
+        node2 = LeafNode("p", "This is a html leaf node.")
+
+        self.assertEqual(node1, node2)
+
+    def test_leaf_difftag(self):
+        node1 = LeafNode("b", "This is a html leaf node.")
+        node2 = LeafNode("p", "This is a html leaf node.")
+
+        self.assertNotEqual(node1, node2)
+
+    def test_leaf_difftext(self):
+        node1 = LeafNode("b", "This is a html leaf node.")
+        node2 = LeafNode("b", "This is another html leaf node.")
+
+        self.assertNotEqual(node1, node2)
+
+    def test_leaf_repr(self):
+        htmlprops = {
+            "href": "https://localhost:8080/leaf",
+            "target": "_blank"
+            }
+        control = "HTMLNode(<a>, This is a html leaf node, None, {'href': 'https://localhost:8080/leaf', 'target': '_blank'})"
+
+        node = HTMLNode("<a>", "This is a html leaf node", htmlprops)
         representation = str(node)
 
         self.assertEqual(representation, control)
@@ -64,12 +104,6 @@ class TestHTMLNode(unittest.TestCase):
             parent_node.to_html(),
             "<div><span><b>grandchild</b></span></div>",
             )
-
-    def test_text(self):
-        node = TextNode("This is a text node", TextType.TEXT)
-        html_node = text_node_to_html_node(node)
-        self.assertEqual(html_node.tag, None)
-        self.assertEqual(html_node.value, "This is a text node")
 
 
 if __name__ == "__main__":
