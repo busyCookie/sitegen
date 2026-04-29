@@ -2,7 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utilities import text_node_to_html_node, split_nodes_delimiter
+from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_lnks, extract_markdown_images
 
 
 class TestUtilities(unittest.TestCase):
@@ -21,3 +21,13 @@ class TestUtilities(unittest.TestCase):
         nodes = split_nodes_delimiter(node_list, "**", TextType.BOLD)
 
         self.assertEqual(nodes, control, msg=f"{0}, {1}")
+
+    def test_extract_markdown_links(self):
+        matches = extract_markdown_lnks("This is text with a [link](https://localhost:8080/)")
+
+        self.assertListEqual(matches, [("link", "https://localhost:8080/")])
+
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)")
+
+        self.assertListEqual(matches, [("image", "https://i.imgur.com/zjjcJKZ.png")])
