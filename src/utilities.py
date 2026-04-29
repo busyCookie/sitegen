@@ -62,7 +62,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
     return new_nodes
 
-def extract_markdown_lnks(text):
+def extract_markdown_links(text):
     links = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 
     return links
@@ -72,3 +72,55 @@ def extract_markdown_images(text):
 
     return images
 
+def split_nodes_link(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text == "":
+            continue
+
+        workline = node.text
+        links = extract_markdown_link(workline)
+
+        if node.text_type != TextType.TEXT or links == []:
+            new_nodes.append(node)
+
+        else:
+            for link in links:
+                parts = workline.split(f"[{link[0]}]({link[1]})", 1)
+
+                if parts[0] != "":
+                    new_nodes.append(TextNode(parts[0], TextType.TEXT))
+
+                new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
+
+                workline = parts[1]
+
+    return new_nodes
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text == "":
+            continue
+
+        workline = node.text
+        images = extract_markdown_images(workline)
+
+        if node.text_type != TextType.TEXT or images == []:
+            new_nodes.append(node)
+
+        else:
+            for image in images:
+                parts = workline.split(f"![{image[0]}]({image[1]})", 1)
+
+                if parts[0] != "":
+                    new_nodes.append(TextNode(parts[0], TextType.TEXT))
+
+                new_nodes.append(TextNode(image[0], TextType.IMG, image[1]))
+
+                workline = parts[1]
+
+    return new_nodes

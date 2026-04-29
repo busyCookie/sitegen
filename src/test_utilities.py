@@ -2,7 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_lnks, extract_markdown_images
+from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image
 
 
 class TestUtilities(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestUtilities(unittest.TestCase):
         self.assertEqual(nodes, control, msg=f"{0}, {1}")
 
     def test_extract_markdown_links(self):
-        matches = extract_markdown_lnks("This is text with a [link](https://localhost:8080/)")
+        matches = extract_markdown_links("This is text with a [link](https://localhost:8080/)")
 
         self.assertListEqual(matches, [("link", "https://localhost:8080/")])
 
@@ -31,3 +31,22 @@ class TestUtilities(unittest.TestCase):
         matches = extract_markdown_images("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)")
 
         self.assertListEqual(matches, [("image", "https://i.imgur.com/zjjcJKZ.png")])
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMG, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode(
+                    "second image", TextType.IMG, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
