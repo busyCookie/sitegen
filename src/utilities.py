@@ -80,7 +80,7 @@ def split_nodes_link(old_nodes):
             continue
 
         workline = node.text
-        links = extract_markdown_link(workline)
+        links = extract_markdown_links(workline)
 
         if node.text_type != TextType.TEXT or links == []:
             new_nodes.append(node)
@@ -124,3 +124,13 @@ def split_nodes_image(old_nodes):
                 workline = parts[1]
 
     return new_nodes
+
+def text_to_textnodes(text):
+    nodes = split_nodes_link([TextNode(text, TextType.TEXT)])
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.BOLD)
+
+    return nodes

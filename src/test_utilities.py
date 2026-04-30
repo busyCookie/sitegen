@@ -2,7 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image
+from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image, text_to_textnodes
 
 
 class TestUtilities(unittest.TestCase):
@@ -50,3 +50,18 @@ class TestUtilities(unittest.TestCase):
             ],
             new_nodes,
         )
+
+    def test_text_proccess(self):
+        control = [TextNode("This is ", TextType.TEXT),
+                   TextNode("text", TextType.BOLD),
+                   TextNode(" with an ", TextType.TEXT),
+                   TextNode("italic", TextType.ITALIC),
+                   TextNode(" word and a ", TextType.TEXT),
+                   TextNode("code block", TextType.CODE),
+                   TextNode(" and an ", TextType.TEXT),
+                   TextNode("obi wan image", TextType.IMG, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                   TextNode("link", TextType.LINK, "https://boot.dev")
+                   ]
+        extract_nodes = text_to_textnodes("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+
+        self.assertListEqual(control, extract_nodes)
