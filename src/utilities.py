@@ -35,6 +35,19 @@ def text_node_to_html_node(text_node):
 
     return new_node
 
+def markdown_to_blocks(markdown):
+    raw_blocks = markdown.split("\n\n")
+
+    processed_blocks = []
+    for block in raw_blocks:
+        block = block.strip()
+        block = block.strip("\n")
+
+        if block != "":
+            processed_blocks.append(block)
+
+    return processed_blocks
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
