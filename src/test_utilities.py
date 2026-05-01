@@ -6,11 +6,22 @@ from utilities import text_node_to_html_node, split_nodes_delimiter, extract_mar
 
 
 class TestUtilities(unittest.TestCase):
+
     def test_text_to_html(self):
         node = TextNode("This is a text node", TextType.TEXT)
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, None)
         self.assertEqual(html_node.value, "This is a text node")
+
+    def test_extract_markdown_links(self):
+        matches = extract_markdown_links("This is text with a [link](https://localhost:8080/)")
+
+        self.assertListEqual(matches, [("link", "https://localhost:8080/")])
+
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)")
+
+        self.assertListEqual(matches, [("image", "https://i.imgur.com/zjjcJKZ.png")])
 
     def test_split_bold(self):
         control = [TextNode("This is ", TextType.TEXT), TextNode("a bold text", TextType.BOLD), TextNode(" node", TextType.TEXT)]
@@ -22,15 +33,6 @@ class TestUtilities(unittest.TestCase):
 
         self.assertEqual(nodes, control, msg=f"{0}, {1}")
 
-    def test_extract_markdown_links(self):
-        matches = extract_markdown_links("This is text with a [link](https://localhost:8080/)")
-
-        self.assertListEqual(matches, [("link", "https://localhost:8080/")])
-
-    def test_extract_markdown_images(self):
-        matches = extract_markdown_images("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)")
-
-        self.assertListEqual(matches, [("image", "https://i.imgur.com/zjjcJKZ.png")])
 
     def test_split_images(self):
         node = TextNode(
@@ -70,7 +72,7 @@ class TestUtilities(unittest.TestCase):
         control = [
             "This is **bolded** paragraph",
             "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
-            "- This is a list\n- with items"]
+            "- This is a list\n- with items",]
 
         md = """
 This is **bolded** paragraph
@@ -84,18 +86,17 @@ This is the same paragraph on a new line
 
         blocks = markdown_to_blocks(md)
 
-        self.assertEqual(blocks, control)
+        self.assertListEqual(blocks, control)
 
-
-    def text_header_block(self):
+    def test_header_block(self):
         control = BlockType.HEAD
         block = "### Header"
 
         block_type = block_to_block_type(block)
 
-        self.assertListEqual(control, block_type)
+        self.assertEqual(control, block_type)
 
-    def text_code_block(self):
+    def test_code_block(self):
         control = BlockType.CODE
         block = """```
 def code_block(self):
@@ -104,9 +105,9 @@ def code_block(self):
 
         block_type = block_to_block_type(block)
 
-        self.assertListEqual(control, block_type)
+        self.assertEqual(control, block_type)
 
-    def text_quote_block(self):
+    def test_quote_block(self):
         control = BlockType.QUOTE
         block = """>samurai without the sword
 >is the same as with the sword
@@ -114,9 +115,9 @@ def code_block(self):
 
         block_type = block_to_block_type(block)
 
-        self.assertListEqual(control, block_type)
+        self.assertEqual(control, block_type)
 
-    def text_ulist_block(self):
+    def test_ulist_block(self):
         control = BlockType.ULIST
         block = """- order the list
 - make unorderd list
@@ -124,9 +125,9 @@ def code_block(self):
 
         block_type = block_to_block_type(block)
 
-        self.assertListEqual(control, block_type)
+        self.assertEqual(control, block_type)
 
-    def text_header_block(self):
+    def test_header_block(self):
         control = BlockType.OLIST
         block = """1. Take a new list.
 2. Make unorderd list.
@@ -134,13 +135,13 @@ def code_block(self):
 
         block_type = block_to_block_type(block)
 
-        self.assertListEqual(control, block_type)
+        self.assertEqual(control, block_type)
 
-    def text_header_block(self):
+    def test_header_block(self):
         control = BlockType.PAR
         block = """Just some regualr paragraph of text.
 With two lines, mardown does not care for."""
 
         block_type = block_to_block_type(block)
 
-        self.assertListEqual(control, block_type)
+        self.assertEqual(control, block_type)
