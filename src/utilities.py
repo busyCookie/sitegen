@@ -1,6 +1,6 @@
 import re
 
-from textnode import TextType, TextNode
+from textnode import TextType, BlockType, TextNode
 from htmlnode import LeafNode
 
 def text_node_to_html_node(text_node):
@@ -47,6 +47,39 @@ def markdown_to_blocks(markdown):
             processed_blocks.append(block)
 
     return processed_blocks
+
+def block_to_block_type(block):
+
+    if re.match(r"\#{1,6} \w+", block):
+        return BlockType.HEAD
+
+    if block.startswith("```") and block.endswith("```"):
+        return BlockType.CODE
+
+    quote = True
+    ulist = True
+    olist = True
+    olist_count = 1
+    lines = block.splitlines()
+
+    for line in lines:
+        if quote and not line.startswith(">"):
+            quote = False
+        if ulist and not line.startswith("- "):
+            ulist = False
+        if olist and not line.startswith(f"{olist_count}. "):
+            olist = False
+        olist_count += 1
+
+    if quote:
+        return BlockType.QUOTE
+    if ulist:
+        return BlockType.ULIST
+    if olist:
+        return BlockType.OLIST
+
+    return BlockType.PAR
+
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []

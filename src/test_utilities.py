@@ -1,8 +1,8 @@
 import unittest
 
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, BlockType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image, text_to_textnodes, markdown_to_blocks
+from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image, text_to_textnodes, markdown_to_blocks, block_to_block_type
 
 
 class TestUtilities(unittest.TestCase):
@@ -85,3 +85,62 @@ This is the same paragraph on a new line
         blocks = markdown_to_blocks(md)
 
         self.assertEqual(blocks, control)
+
+
+    def text_header_block(self):
+        control = BlockType.HEAD
+        block = "### Header"
+
+        block_type = block_to_block_type(block)
+
+        self.assertListEqual(control, block_type)
+
+    def text_code_block(self):
+        control = BlockType.CODE
+        block = """```
+def code_block(self):
+    code.execute(parameters)
+```"""
+
+        block_type = block_to_block_type(block)
+
+        self.assertListEqual(control, block_type)
+
+    def text_quote_block(self):
+        control = BlockType.QUOTE
+        block = """>samurai without the sword
+>is the same as with the sword
+>but without the sword."""
+
+        block_type = block_to_block_type(block)
+
+        self.assertListEqual(control, block_type)
+
+    def text_ulist_block(self):
+        control = BlockType.ULIST
+        block = """- order the list
+- make unorderd list
+- take a new list"""
+
+        block_type = block_to_block_type(block)
+
+        self.assertListEqual(control, block_type)
+
+    def text_header_block(self):
+        control = BlockType.OLIST
+        block = """1. Take a new list.
+2. Make unorderd list.
+3. Order the list."""
+
+        block_type = block_to_block_type(block)
+
+        self.assertListEqual(control, block_type)
+
+    def text_header_block(self):
+        control = BlockType.PAR
+        block = """Just some regualr paragraph of text.
+With two lines, mardown does not care for."""
+
+        block_type = block_to_block_type(block)
+
+        self.assertListEqual(control, block_type)
