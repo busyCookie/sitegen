@@ -1,7 +1,7 @@
 import re
 
 from textnode import TextType, BlockType, TextNode
-from htmlnode import LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:
@@ -40,11 +40,11 @@ def markdown_to_blocks(markdown):
 
     processed_blocks = []
     for block in raw_blocks:
-        block = block.strip()
-        block = block.strip("\n")
+        processed_block = block.strip()
+        processed_block = processed_block.strip("\n")
 
         if block != "":
-            processed_blocks.append(block)
+            processed_blocks.append(processed_block)
 
     return processed_blocks
 
@@ -180,3 +180,74 @@ def text_to_textnodes(text):
     nodes = split_nodes_delimiter(nodes, "*", TextType.BOLD)
 
     return nodes
+
+def markdown_to_html_node(markdown):
+    html_tree = []
+    blocks = markdown_to_blocks(markdown)
+
+    for block in blocks:
+        type = block_to_block_type(block)
+        match type:
+            case BlockType.PAR:
+                html_children = []
+                block = block.replace("\n", " ")
+                while block.count("  ") > 0:
+                    block.replace("  ", " ")
+                text_nodes = text_to_textnodes(block)
+                for text_node in text_nodes:
+                    html_children.append(text_node_to_html_node(text_node))
+
+                html_tree.append(ParentNode("p", html_children))
+
+            case BlockType.QUOTE:
+                html_children = []
+                text_nodes = text_to_textnodes(block)
+                for text_node in text_nodes:
+                    html_children.append(text_node_to_html_node(text_node))
+
+                html_tree.append(ParentNode("blockquote", html_children))
+
+            case BlockType.OLIST:
+                lines = text_nodes.splitlines()
+                html_lines = []
+                for line in lines:
+                    html_line_children = []
+                    line = line.split(". ", 1)[1]
+                    line_nodes = text_to_textnodes(line)
+
+                    for line_node in line_nodes:
+                        html_line_children.append(text_node_to_html_node(line_node))
+
+                    html_lines.appen(ParentNode("li", html_line_children ))
+
+                html_tree.append(ParentNode("ol", html_lines))
+
+            case BlockType.ULIST:
+                lines = text_nodes.splitlines()
+                html_lines = []
+                for line in lines:
+                    html_line_children = []
+                    line = line[2:]
+                    line_nodes = text_to_textnodes(line)
+
+                    for line_node in line_nodes:
+                        html_line_children.append(text_node_to_html_node(line_node))
+
+                    html_lines.appen(ParentNode("li", html_line_children ))
+
+                html_tree.append(ParentNode("ul", html_lines))
+
+            case BlockType.HEAD:
+                html_tree.append(LeafNode(f"h{block.count("#")}", block))
+
+            case BlockType.CODE:
+                text = block[3:].strip()
+                text = text[:-3]
+                html_tree.append(ParentNode("pre", [LeafNode("code", text)]))
+
+            case _:
+                raise Exception("Invalid BlocNode type")
+
+    return ParentNode("div", html_tree)
+
+
