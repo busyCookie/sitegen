@@ -55,6 +55,95 @@ class TestBlockProcessing(unittest.TestCase):
 
         self.assertListEqual(blocks, control)
 
+    def test_header_block(self):
+        control = BlockType.HEAD
+        block = "### Header"
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
+    def test_code_block(self):
+        control = BlockType.CODE
+        block = ("```\n"
+            "def code_block(self):\n"
+            "code.execute(parameters)\n"
+            "```")
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
+    def test_quote_block(self):
+        control = BlockType.QUOTE
+        block = (">samurai without the sword\n"
+            ">is the same as with the sword\n"
+            ">but without the sword.\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
+    def test_ulist_block(self):
+        control = BlockType.ULIST
+        block = ("- order the list\n"
+            "- make unorderd list\n"
+            "- take a new list\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
+
+    def test_olist_block(self):
+        control = BlockType.OLIST
+        block = ("1. Take a new list.\n"
+            "2. Make unorderd list.\n"
+            "3. Order the list.\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
+    def test_header_block(self):
+        control = BlockType.PAR
+        block = ("Just some regualr paragraph of text.\n"
+            "With two lines, mardown does not care for.")
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
+    def test_not_quote_block(self):
+        control = BlockType.QUOTE
+        block = (">samurai without the sword\n"
+            ">is the same as with the sword\n"
+            "-but without the sword.\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertNotEqual(control, block_type)
+
+    def test_wronglist0_block(self):
+        control = BlockType.ULIST
+        block = ("- order the list\n"
+            "2. make unorderd list\n"
+            "* take a new list\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertNotEqual(control, block_type)
+
+    def test_wronglist0_block(self):
+        control = BlockType.ULIST
+        block = ("1. order the list\n"
+            "2. make unorderd list\n"
+            "- take a new list\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertNotEqual(control, block_type)
+
 #class TestLineProcessing(unittest.TestCase):
 
 #class TestHTMLGeneration(unittest.TestCase):
@@ -123,63 +212,6 @@ class TestUtilities(unittest.TestCase):
 
         self.assertListEqual(control, extract_nodes)
 
-    def test_header_block(self):
-        control = BlockType.HEAD
-        block = "### Header"
-
-        block_type = block_to_block_type(block)
-
-        self.assertEqual(control, block_type)
-
-    def test_code_block(self):
-        control = BlockType.CODE
-        block = """```
-def code_block(self):
-    code.execute(parameters)
-```"""
-
-        block_type = block_to_block_type(block)
-
-        self.assertEqual(control, block_type)
-
-    def test_quote_block(self):
-        control = BlockType.QUOTE
-        block = """>samurai without the sword
->is the same as with the sword
->but without the sword."""
-
-        block_type = block_to_block_type(block)
-
-        self.assertEqual(control, block_type)
-
-    def test_ulist_block(self):
-        control = BlockType.ULIST
-        block = """- order the list
-- make unorderd list
-- take a new list"""
-
-        block_type = block_to_block_type(block)
-
-        self.assertEqual(control, block_type)
-
-    def test_header_block(self):
-        control = BlockType.OLIST
-        block = """1. Take a new list.
-2. Make unorderd list.
-3. Order the list."""
-
-        block_type = block_to_block_type(block)
-
-        self.assertEqual(control, block_type)
-
-    def test_header_block(self):
-        control = BlockType.PAR
-        block = """Just some regualr paragraph of text.
-With two lines, mardown does not care for."""
-
-        block_type = block_to_block_type(block)
-
-        self.assertEqual(control, block_type)
 
     def test_paragraphs(self):
         md = """
