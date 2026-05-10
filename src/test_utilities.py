@@ -5,6 +5,61 @@ from htmlnode import HTMLNode, LeafNode, ParentNode
 from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image, text_to_textnodes, markdown_to_blocks, block_to_block_type, markdown_to_html_node
 
 
+class TestBlockProcessing(unittest.TestCase):
+
+    def test_markdown_to_single_block(self):
+        control = [
+            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."]
+
+        md = ("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.")
+
+        blocks = markdown_to_blocks(md)
+
+        self.assertListEqual(blocks, control)
+
+    def test_markdown_to_block_traling_spaces(self):
+        control = [
+            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."]
+
+        md = ("  \n\n  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. \n\n ")
+
+        blocks = markdown_to_blocks(md)
+
+        self.assertListEqual(blocks, control)
+
+    def test_markdown_to_block_newlines(self):
+        control = [
+            "Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's standard dummy text ever since the 1500s,\nwhen an unknown printer took a galley of type and scrambled it to make a type specimen book."]
+
+        md = ("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's standard dummy text ever since the 1500s,\nwhen an unknown printer took a galley of type and scrambled it to make a type specimen book.")
+
+        blocks = markdown_to_blocks(md)
+
+        self.assertListEqual(blocks, control)
+
+    def test_markdown_to_blocks(self):
+        control = [
+            "##Test Data",
+            "This is a paragraph with **bolded** text. And an additional sentence.",
+            "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+            "- This is a list\n- with items"]
+
+        md = ("##Test Data\n\n"
+            "This is a paragraph with **bolded** text. And an additional sentence.\n\n"
+            "This is another paragraph with _italic_ text and `code` here\n"
+            "This is the same paragraph on a new line\n\n"
+            "- This is a list\n"
+            "- with items\n")
+
+        blocks = markdown_to_blocks(md)
+
+        self.assertListEqual(blocks, control)
+
+#class TestLineProcessing(unittest.TestCase):
+
+#class TestHTMLGeneration(unittest.TestCase):
+
+
 class TestUtilities(unittest.TestCase):
 
     def test_text_to_html(self):
@@ -67,26 +122,6 @@ class TestUtilities(unittest.TestCase):
         extract_nodes = text_to_textnodes("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
 
         self.assertListEqual(control, extract_nodes)
-
-    def test_markdown_to_blocks(self):
-        control = [
-            "This is **bolded** paragraph",
-            "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
-            "- This is a list\n- with items",]
-
-        md = """
-This is **bolded** paragraph
-
-This is another paragraph with _italic_ text and `code` here
-This is the same paragraph on a new line
-
-- This is a list
-- with items
-"""
-
-        blocks = markdown_to_blocks(md)
-
-        self.assertListEqual(blocks, control)
 
     def test_header_block(self):
         control = BlockType.HEAD

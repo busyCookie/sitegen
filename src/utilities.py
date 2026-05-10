@@ -40,10 +40,12 @@ def markdown_to_blocks(markdown):
 
     processed_blocks = []
     for block in raw_blocks:
-        processed_block = block.strip()
-        processed_block = processed_block.strip("\n")
+        processed_block = block.strip("\n")
+        while (processed_block.startswith(" ") or processed_block.startswith("\n") or processed_block.endswith(" ") or processed_block.endswith("\n") ):
+            processed_block = processed_block.strip()
+            processed_block = processed_block.strip("\n")
 
-        if block != "":
+        if processed_block != "":
             processed_blocks.append(processed_block)
 
     return processed_blocks
