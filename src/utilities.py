@@ -240,7 +240,8 @@ def markdown_to_html_node(markdown):
                 html_tree.append(ParentNode("ul", html_lines))
 
             case BlockType.HEAD:
-                html_tree.append(LeafNode(f"h{block.count("#")}", block))
+                hlevel = block.count("#")
+                html_tree.append(LeafNode(f"h{hlevel}", block[hlevel+1:]))
 
             case BlockType.CODE:
                 text = block[3:].strip()
