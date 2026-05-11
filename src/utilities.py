@@ -1,7 +1,55 @@
 import re
+import os
+import shutil
 
 from textnode import TextType, BlockType, TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
+
+def refesh_content(src, dest):
+    if not os.path.exists(src):
+        raise Exception(f"source directory does not exists: {src}")
+
+    clean_target(dest)
+
+    copy_content(src, dest)
+
+def clean_target(dest):
+    if re.match("^[a-zA-Z]:\\)*", dest):
+        dest = dest[2:]
+    if dest[0] == "/":
+        dest = f".{dest}"
+
+    if os.path.exists(dest):
+        if os.path.isfile(dest):
+            os.remove(dest)
+
+        else:
+            dir_content = os.listdir(dest)
+
+            for item in dir_content:
+                clean_target(os.path.join(dest, item))
+
+            os.rmdir(dest)
+
+def copy_content(src, dest):
+    if not os.path.exists(src):
+        raise Exception(f"source directory does not exists: {src}")
+    if os.path.exists(dest):
+        raise Exception(f"target directory already exists: {src}")
+
+    if os.path.isfile(src):
+        shutil.copy(src, dest)
+
+    else:
+        os.mkdir(dest)
+
+        dir_content = os.listdir(src)
+
+        for item in dir_content:
+            src_sub = os.path.join(src, item)
+            dest_sub = os.path.join(dest, item)
+
+            copy_content(src_sub, dest_sub)
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:
