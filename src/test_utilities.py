@@ -196,6 +196,19 @@ class TestHTMLGeneration(unittest.TestCase):
         html = node.to_html()
         self.assertEqual( control, html)
 
+    def test_html_quote(self):
+        control = ("<div><blockquote>A very smart phrase\n"
+            "Expressing banale idea\n"
+            "by a Dead Man\n"
+            "</blockquote></div>")
+        md = ("> A very smart phrase\n"
+            "> Expressing banale idea\n"
+            "> by a Dead Man\n")
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual( control, html)
+
 
 class TestTextProcessing(unittest.TestCase):
 

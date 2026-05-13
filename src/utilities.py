@@ -268,7 +268,11 @@ def markdown_to_html_node(markdown):
 
             case BlockType.QUOTE:
                 html_children = []
-                text_nodes = text_to_textnodes(block)
+                lines = block.splitlines()
+                quote = ""
+                for line in lines:
+                    quote += f"{line[2:]}\n"
+                text_nodes = text_to_textnodes(quote)
                 for text_node in text_nodes:
                     html_children.append(text_node_to_html_node(text_node))
 
