@@ -104,6 +104,16 @@ class TestBlockProcessing(unittest.TestCase):
 
         self.assertEqual(control, block_type)
 
+    def test_olist_block(self):
+        control = BlockType.OLIST
+        block = ("1. Take a new list.\n"
+            "2. Make unorderd list.\n"
+            "3. Order the list.\n")
+
+        block_type = block_to_block_type(block)
+
+        self.assertEqual(control, block_type)
+
     def test_header_block(self):
         control = BlockType.PAR
         block = ("Just some regualr paragraph of text.\n"
@@ -132,17 +142,6 @@ class TestBlockProcessing(unittest.TestCase):
         block_type = block_to_block_type(block)
 
         self.assertNotEqual(control, block_type)
-
-    def test_wronglist1_block(self):
-        control = BlockType.ULIST
-        block = ("1. order the list\n"
-            "2. make unorderd list\n"
-            "- take a new list\n")
-
-        block_type = block_to_block_type(block)
-
-        self.assertNotEqual(control, block_type)
-
 
 class TestHTMLGeneration(unittest.TestCase):
 
@@ -191,6 +190,19 @@ class TestHTMLGeneration(unittest.TestCase):
         md = ("1. First line\n"
             "2. Second line\n"
             "3. Third line\n")
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual( control, html)
+
+    def test_html_olist2(self):
+        control = ("<div><ol><li><b>A Noble Sacrifice</b>: In the ancient tales of Gondolin, it was Glorfindel who faced off against the fiery terror during the city's fall, sacrificing himself to secure his people's escape.</li><li><b>A Victory Remembered</b>: Even in death, his victory was marked by valor, as he vanquished the Balrog in an epic struggle, ultimately earning a place of honor in the Undying Lands.</li></ol></div>")
+        md = ("1. **A Noble Sacrifice**: In the ancient tales of Gondolin,"
+        " it was Glorfindel who faced off against the fiery terror during the"
+        " city's fall, sacrificing himself to secure his people's escape.\n"
+        "2. **A Victory Remembered**: Even in death, his victory was marked by"
+        " valor, as he vanquished the Balrog in an epic struggle, ultimately"
+        " earning a place of honor in the Undying Lands.\n")
 
         node = markdown_to_html_node(md)
         html = node.to_html()

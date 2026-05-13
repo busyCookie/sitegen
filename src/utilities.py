@@ -164,10 +164,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             parts = node.text.split(delimiter)
 
             for i in range(0, len(parts)-1, 2):
-                new_text_node = TextNode(parts[i], TextType.TEXT)
-                new_typed_node = TextNode(parts[i + 1], text_type)
+                if parts[i].strip() != "":
+                    new_text_node = TextNode(parts[i], TextType.TEXT)
+                    new_nodes.append(new_text_node)
 
-                new_nodes.append(new_text_node)
+                new_typed_node = TextNode(parts[i + 1], text_type)
                 new_nodes.append(new_typed_node)
 
             if parts[-1] != "":
@@ -241,10 +242,10 @@ def split_nodes_image(old_nodes):
 def text_to_textnodes(text):
     nodes = split_nodes_link([TextNode(text, TextType.TEXT)])
     nodes = split_nodes_image(nodes)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
     nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
     nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
-    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
-    nodes = split_nodes_delimiter(nodes, "*", TextType.BOLD)
+
 
     return nodes
 
@@ -313,8 +314,22 @@ def markdown_to_html_node(markdown):
                 html_tree.append(ParentNode("ul", html_lines))
 
             case BlockType.HEAD:
+                html_children = []
                 hlevel = block.count("#")
-                html_tree.append(LeafNode(f"h{hlevel}", block[hlevel+1:]))
+
+                block = block[hlevel+1:]
+                block = block.replace("\n", " ")
+
+                while block.count("  ") > 0:
+                    block.replace("  ", " ")
+
+                text_nodes = text_to_textnodes(block)
+                for text_node in text_nodes:
+                    html_children.append(text_node_to_html_node(text_node))
+
+                html_tree.append(ParentNode(f"h{hlevel}", html_children))
+
+
 
             case BlockType.CODE:
                 text = block[3:].strip()
@@ -360,7 +375,7 @@ def generate_page(from_path, template_path, dest_path):
     dest_dir = os.path.dirname(dest_path)
 
     if not os.path.exists(dest_dir):
-        os.path.mkdirs(dest_dir)
+        os.makedirs(dest_dir)
 
     try:
         dest_file = open(dest_path, "x")
@@ -369,3 +384,17 @@ def generate_page(from_path, template_path, dest_path):
 
     dest_file.write(page)
     dest_file.close()
+
+def generate_pages_recursive(from_path, template_path, dest_path):
+    if os.path.isfile(from_path) and from_path[-3:] == ".md":
+        dest_path = f"{dest_path[:-3]}.html"
+        generate_page(from_path, template_path, dest_path)
+
+    elif not os.path.isfile(from_path):
+        dir_content = os.listdir(from_path)
+
+        for item in dir_content:
+            from_sub = os.path.join(from_path, item)
+            dest_sub = os.path.join(dest_path, item)
+
+            generate_pages_recursive(from_sub, template_path, dest_sub)
