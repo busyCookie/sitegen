@@ -2,7 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType, BlockType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image, text_to_textnodes, markdown_to_blocks, block_to_block_type, markdown_to_html_node
+from utilities import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_link, split_nodes_image, text_to_textnodes, markdown_to_blocks, block_to_block_type, markdown_to_html_node, extract_title
 
 
 class TestBlockProcessing(unittest.TestCase):
@@ -176,6 +176,26 @@ class TestHTMLGeneration(unittest.TestCase):
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>")
 
+    def test_html_ulist(self):
+        control = "<div><ul><li>First line</li><li>Second line</li><li>Third line</li></ul></div>"
+        md = ("- First line\n"
+            "- Second line\n"
+            "- Third line\n")
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual( control, html)
+
+    def test_html_olist(self):
+        control = "<div><ol><li>First line</li><li>Second line</li><li>Third line</li></ol></div>"
+        md = ("1. First line\n"
+            "2. Second line\n"
+            "3. Third line\n")
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual( control, html)
+
 
 class TestTextProcessing(unittest.TestCase):
 
@@ -233,3 +253,39 @@ class TestTextProcessing(unittest.TestCase):
 
         self.assertListEqual(control, extract_nodes)
 
+    def test_extract_title(self):
+        control = "Title"
+        md = "# Title"
+
+        extracted_title = extract_title(md)
+
+        self.assertEqual(control, extracted_title)
+
+    def test_extract_title_long_md(self):
+        control = "Test Data"
+
+        md = ("# Test Data\n\n"
+            "This is a paragraph with **bolded** text. And an additional sentence.\n\n"
+            "This is another paragraph with _italic_ text and `code` here\n"
+            "This is the same paragraph on a new line\n\n"
+            "- This is a list\n"
+            "- with items\n")
+
+        extracted_title = extract_title(md)
+
+        self.assertEqual(control, extracted_title)
+
+    def test_extract_title_middle(self):
+        control = "Real Title"
+
+        md = ("## Test Data\n\n"
+            "This is a paragraph with **bolded** text. And an additional sentence.\n\n"
+            "# Real Title\n\n"
+            "This is another paragraph with _italic_ text and `code` here\n"
+            "This is the same paragraph on a new line\n\n"
+            "- This is a list\n"
+            "- with items\n")
+
+        extracted_title = extract_title(md)
+
+        self.assertEqual(control, extracted_title)

@@ -51,6 +51,23 @@ def copy_content(src, dest):
 
             copy_content(src_sub, dest_sub)
 
+def extract_title(markdown):
+    title = ""
+    blocks = markdown_to_blocks(markdown)
+    index = 0
+
+    while title == "" and index < len(blocks):
+        if re.match(r"\#{1} \w+", blocks[index]):
+            title = blocks[index][1:].strip()
+
+        index += 1
+
+    if title == "":
+        raise Exception("No title found")
+
+    return title
+
+
 def text_node_to_html_node(text_node):
     match text_node.text_type:
         case TextType.TEXT:
@@ -76,7 +93,7 @@ def text_node_to_html_node(text_node):
             props["src"] = text_node.url
             props["alt"] = text_node.text
 
-            new_node = LeafNode("img", None, props)
+            new_node = LeafNode("img", f"img: {text_node.text}", props)
 
         case _:
             raise Exception("Invalid TextNode type")
@@ -258,32 +275,36 @@ def markdown_to_html_node(markdown):
                 html_tree.append(ParentNode("blockquote", html_children))
 
             case BlockType.OLIST:
-                lines = text_nodes.splitlines()
+                lines = block.splitlines()
                 html_lines = []
                 for line in lines:
                     html_line_children = []
                     line = line.split(". ", 1)[1]
-                    line_nodes = text_to_textnodes(line)
+                    line = line.strip("\n")
+                    line = line.strip()
+                    if line != "":
+                        line_nodes = text_to_textnodes(line)
 
-                    for line_node in line_nodes:
-                        html_line_children.append(text_node_to_html_node(line_node))
+                        for line_node in line_nodes:
+                            html_line_children.append(text_node_to_html_node(line_node))
 
-                    html_lines.appen(ParentNode("li", html_line_children ))
+                        html_lines.append(ParentNode("li", html_line_children ))
 
                 html_tree.append(ParentNode("ol", html_lines))
 
             case BlockType.ULIST:
-                lines = text_nodes.splitlines()
+                lines = block.splitlines()
                 html_lines = []
                 for line in lines:
                     html_line_children = []
-                    line = line[2:]
-                    line_nodes = text_to_textnodes(line)
+                    line = line[2:].strip("\n").strip()
+                    if line != "":
+                        line_nodes = text_to_textnodes(line)
 
-                    for line_node in line_nodes:
-                        html_line_children.append(text_node_to_html_node(line_node))
+                        for line_node in line_nodes:
+                            html_line_children.append(text_node_to_html_node(line_node))
 
-                    html_lines.appen(ParentNode("li", html_line_children ))
+                        html_lines.append(ParentNode("li", html_line_children ))
 
                 html_tree.append(ParentNode("ul", html_lines))
 
@@ -301,4 +322,46 @@ def markdown_to_html_node(markdown):
 
     return ParentNode("div", html_tree)
 
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
+    try:
+        source_file = open(from_path, "r")
+    except:
+        raise Exception(f"{from_path} can not be open")
+
+    source = source_file.read()
+    source_file.close()
+
+    try:
+        template_file = open(template_path, "r")
+    except:
+        raise Exception(f"{template_path} can not be open")
+
+    template = template_file.read()
+    template_file.close()
+
+    title = extract_title(source)
+    content = markdown_to_html_node(source)
+
+
+    content_html = content.to_html()
+
+    page = template.replace("{{ Title }}", title)
+    page = page.replace("{{ Content }}", content_html)
+
+    if os.path.exists(dest_path) and os.path.isfile(dest_path):
+        os.remove(dest_path)
+
+    dest_dir = os.path.dirname(dest_path)
+
+    if not os.path.exists(dest_dir):
+        os.path.mkdirs(dest_dir)
+
+    try:
+        dest_file = open(dest_path, "x")
+    except:
+        raise Exception(f"{dest_path} is not empty or path is invalid")
+
+    dest_file.write(page)
+    dest_file.close()
