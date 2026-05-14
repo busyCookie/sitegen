@@ -368,8 +368,8 @@ def generate_page(from_path, template_path, dest_path, basepath):
 
     page = template.replace("{{ Title }}", title)
     page = page.replace("{{ Content }}", content_html)
-    page = page.replace("href=\"/", "href=\"{basepath}")
-    page = page.replace("src=\"/", "src=\"{basepath}")
+    page = page.replace("href=\"/", f"href=\"{basepath}")
+    page = page.replace("src=\"/", f"src=\"{basepath}")
 
     if os.path.exists(dest_path) and os.path.isfile(dest_path):
         os.remove(dest_path)
