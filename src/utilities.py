@@ -341,7 +341,7 @@ def markdown_to_html_node(markdown):
 
     return ParentNode("div", html_tree)
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     try:
@@ -368,6 +368,8 @@ def generate_page(from_path, template_path, dest_path):
 
     page = template.replace("{{ Title }}", title)
     page = page.replace("{{ Content }}", content_html)
+    page = page.replace("href=\"/", "href=\"{basepath}")
+    page = page.replace("src=\"/", "src=\"{basepath}")
 
     if os.path.exists(dest_path) and os.path.isfile(dest_path):
         os.remove(dest_path)
@@ -385,10 +387,10 @@ def generate_page(from_path, template_path, dest_path):
     dest_file.write(page)
     dest_file.close()
 
-def generate_pages_recursive(from_path, template_path, dest_path):
+def generate_pages_recursive(from_path, template_path, dest_path, basepath):
     if os.path.isfile(from_path) and from_path[-3:] == ".md":
         dest_path = f"{dest_path[:-3]}.html"
-        generate_page(from_path, template_path, dest_path)
+        generate_page(from_path, template_path, dest_path, basepath)
 
     elif not os.path.isfile(from_path):
         dir_content = os.listdir(from_path)
@@ -397,4 +399,4 @@ def generate_pages_recursive(from_path, template_path, dest_path):
             from_sub = os.path.join(from_path, item)
             dest_sub = os.path.join(dest_path, item)
 
-            generate_pages_recursive(from_sub, template_path, dest_sub)
+            generate_pages_recursive(from_sub, template_path, dest_sub, basepath)
