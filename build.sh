@@ -1,1 +1,1 @@
-python3 src/main.py "/busyCookie/sitegen/"
+python3 src/main.py "/sitegen/"
