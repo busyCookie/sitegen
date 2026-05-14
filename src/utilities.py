@@ -260,7 +260,7 @@ def markdown_to_html_node(markdown):
                 html_children = []
                 block = block.replace("\n", " ")
                 while block.count("  ") > 0:
-                    block.replace("  ", " ")
+                    block = block.replace("  ", " ")
                 text_nodes = text_to_textnodes(block)
                 for text_node in text_nodes:
                     html_children.append(text_node_to_html_node(text_node))
@@ -321,7 +321,7 @@ def markdown_to_html_node(markdown):
                 block = block.replace("\n", " ")
 
                 while block.count("  ") > 0:
-                    block.replace("  ", " ")
+                    block = block.replace("  ", " ")
 
                 text_nodes = text_to_textnodes(block)
                 for text_node in text_nodes:
